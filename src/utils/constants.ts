@@ -1,0 +1,1 @@
+export const DISPLAYED_EVENTS_NB = 20

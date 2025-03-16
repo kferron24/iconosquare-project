@@ -1,6 +1,7 @@
 import React, { useContext, useReducer, createContext, ReactNode } from "react";
 import { createRandomEvent } from "../utils";
 import { Event, EventAction, EventState } from "../../types/events.model";
+import { DISPLAYED_EVENTS_NB } from "../constants";
 
 const LiveChartContext = createContext<
   | {
@@ -14,8 +15,11 @@ const initialEvents: Event[] = Array.from(Array(50)).map((_, ix) =>
   createRandomEvent(ix)
 );
 
-const initialData = {
+const initialData: EventState = {
   events: initialEvents,
+  isPaused: false,
+  pausedNewEvents: [],
+  navigationIndex: initialEvents.length - DISPLAYED_EVENTS_NB / 2,
 };
 
 const liveChartReducer = (
@@ -24,8 +28,53 @@ const liveChartReducer = (
 ): EventState => {
   switch (action.type) {
     case "new_event":
+      if (state.isPaused) {
+        return {
+          ...state,
+          pausedNewEvents: [...state.pausedNewEvents, action.payload!],
+        };
+      }
       return {
-        events: [...state.events, action.payload!],
+        ...state,
+        events: [...state.events, action.payload!], // Use '!' since we know payload will be defined
+        navigationIndex: ++state.navigationIndex,
+      };
+    case "toggle_pause":
+      if (state.isPaused) {
+        return {
+          ...state,
+          isPaused: false,
+          events: [...state.events, ...state.pausedNewEvents],
+          pausedNewEvents: [],
+          navigationIndex:
+            state.events.length +
+            state.pausedNewEvents.length -
+            DISPLAYED_EVENTS_NB / 2,
+        };
+      }
+      return {
+        ...state,
+        isPaused: true,
+      };
+    case "rewind":
+      return {
+        ...state,
+        navigationIndex: state.navigationIndex - 2,
+      };
+    case "previous":
+      return {
+        ...state,
+        navigationIndex: --state.navigationIndex,
+      };
+    case "next":
+      return {
+        ...state,
+        navigationIndex: ++state.navigationIndex,
+      };
+    case "forward":
+      return {
+        ...state,
+        navigationIndex: state.navigationIndex + 2,
       };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);

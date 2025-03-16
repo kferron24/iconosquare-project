@@ -1,12 +1,15 @@
 import React from "react";
 import { useLiveChartContext } from "../utils/hooks/useLiveChartContext";
 import { Event } from "../types/events.model";
+import { DISPLAYED_EVENTS_NB } from "../utils/constants";
 
 const LiveTable: React.FC = () => {
   const { data } = useLiveChartContext();
-  const nbTotalEvents = data?.events?.length || 0;
-  const eventsFiltered =
-    data?.events.slice(nbTotalEvents - 20, nbTotalEvents) || [];
+  const halfDisplayedEvents = DISPLAYED_EVENTS_NB / 2;
+  const eventsFiltered = data.events.slice(
+    data.navigationIndex - halfDisplayedEvents,
+    data.navigationIndex + halfDisplayedEvents
+  );
 
   return (
     <div className="flex border border-gray-300 rounded">
