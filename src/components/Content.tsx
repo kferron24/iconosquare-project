@@ -2,6 +2,7 @@ import React from "react";
 import LiveTable from "./LiveTable";
 import LiveChart from "./LiveChart";
 import LiveNavigation from "./LiveNavigation";
+import LiveUpdater from "./LiveUpdater";
 
 const Content: React.FC = () => {
   return (
@@ -11,6 +12,7 @@ const Content: React.FC = () => {
         <LiveNavigation />
       </div>
       <LiveTable />
+      <LiveUpdater />
     </div>
   );
 };

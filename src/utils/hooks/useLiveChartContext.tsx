@@ -19,7 +19,9 @@ const initialData: EventState = {
   events: initialEvents,
   isPaused: false,
   pausedNewEvents: [],
+  previousValues: initialEvents,
   navigationIndex: initialEvents.length - DISPLAYED_EVENTS_NB / 2,
+  isUpdated: false,
 };
 
 const liveChartReducer = (
@@ -37,6 +39,7 @@ const liveChartReducer = (
       return {
         ...state,
         events: [...state.events, action.payload!], // Use '!' since we know payload will be defined
+        previousValues: [...state.previousValues, action.payload!],
         navigationIndex: ++state.navigationIndex,
       };
     case "toggle_pause":
@@ -45,11 +48,13 @@ const liveChartReducer = (
           ...state,
           isPaused: false,
           events: [...state.events, ...state.pausedNewEvents],
+          previousValues: [...state.previousValues, ...state.pausedNewEvents],
           pausedNewEvents: [],
           navigationIndex:
             state.events.length +
             state.pausedNewEvents.length -
             DISPLAYED_EVENTS_NB / 2,
+          selectedEvent: undefined,
         };
       }
       return {
@@ -75,6 +80,41 @@ const liveChartReducer = (
       return {
         ...state,
         navigationIndex: state.navigationIndex + 2,
+      };
+    case "select_value":
+      if (!action.payload?.selectedValue) {
+        return state;
+      }
+      return {
+        ...state,
+        selectedEvent: {
+          event: action.payload,
+          selectedValue: action.payload.selectedValue,
+        },
+      };
+    case "update_value":
+      if (!action.payload || !state.selectedEvent) {
+        return state;
+      }
+
+      const { index } = action.payload;
+      const updatedEvents = [...state.events];
+      updatedEvents[index] = action.payload;
+
+      return {
+        ...state,
+        events: updatedEvents,
+        selectedEvent: {
+          ...state.selectedEvent,
+          event: action.payload,
+        },
+        isUpdated: true,
+      };
+    case "reset":
+      return {
+        ...state,
+        events: state.previousValues,
+        isUpdated: false,
       };
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
