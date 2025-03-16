@@ -2,9 +2,9 @@ import React from 'react';
 import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts'
 import { useLiveChartContext } from '../utils/hooks/useLiveChartContext';
 
-const LiveChart = () => {
+const LiveChart: React.FC = () => {
     const { data } = useLiveChartContext();
-    const nbTotalEvents = data?.events?.length
+    const nbTotalEvents = data?.events?.length || 0
     const eventsFiltered = data.events.slice(nbTotalEvents - 20, nbTotalEvents);
     return (
         <div className="mb-8">
@@ -48,10 +48,6 @@ const LiveChart = () => {
             </ResponsiveContainer>
         </div>
     );
-};
-
-LiveChart.propTypes = {
-    
 };
 
 export default LiveChart;
